@@ -6,9 +6,15 @@ public class Main {
         Scanner sc = new Scanner(System.in);
         
         while (true){
+
             System.out.print("$ ");
             String command = sc.nextLine();
-            System.out.println(command.split(" ")[0]+": command not found");
+            String[] commands = command.split(" ");
+            if (commands[0].equals("exit")){
+                break;
+            }
+            System.out.println(commands[0]+": command not found");
         }
+        sc.close();
     }
 }
