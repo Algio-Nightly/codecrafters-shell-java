@@ -42,6 +42,21 @@ public class CommandRegister{
     }
 
     static void runner(ArrayList<String> command){
+        try {
+            ProcessBuilder pb = new ProcessBuilder(command);
+            Process p = pb.start();
+
+            int exit_code = p.waitFor();
+            // System.out.println();
+
+        } catch (Exception e){
+            System.out.println("Failed to execute Executable at"+ command.get(0));
+            e.printStackTrace();
+        }
+
+    }
+
+    static ArrayList<String> checkExecutable(ArrayList<String> command){
         String primary = command.get(0);
         String pathEnv = System.getenv("PATH"); 
         String[] paths = pathEnv.split(":");
@@ -55,20 +70,7 @@ public class CommandRegister{
             }
         }
         command.set(0, full);
-
-        try {
-            ProcessBuilder pb = new ProcessBuilder(command);
-            Process p = pb.start();
-
-            int exit_code = p.waitFor();
-            // System.out.println();
-
-        } catch (Exception e){
-            System.out.println("Failed to execute Executable at"+ command.get(0));
-            e.printStackTrace();
-        }
-
-
+        return command;
     }
 
 }

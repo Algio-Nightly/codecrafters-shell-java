@@ -21,11 +21,15 @@ public class Main {
             ArrayList<String> commands = new ArrayList<>(Arrays.asList(command.split(" ")));
             if (commands.get(0).equals("exit")){
                 break;
-            }
+            } 
             if (register.containsKey(commands.get(0))){
-                register.get(commands.get(0)).accept(commands);;
+                register.get(commands.get(0)).accept(commands);
             } else {
-                System.out.println(commands.get(0)+": command not found");
+                if (CommandRegister.checkExecutable(commands).get(0)==null){
+                    System.out.println(commands.get(0)+": command not found");
+                } else {
+                    CommandRegister.runner(commands);
+                }
             }
         }
         sc.close();
