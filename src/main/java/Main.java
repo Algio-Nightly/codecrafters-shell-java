@@ -9,6 +9,7 @@ public class Main {
         register.put("type", CommandRegister::type);
     }
 
+    
     public static void main(String[] args) throws Exception {
         // Uncomment the code below to pass the first stage
         Scanner sc = new Scanner(System.in);
