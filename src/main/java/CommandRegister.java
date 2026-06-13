@@ -47,8 +47,14 @@ public class CommandRegister{
     
     static void cd(ArrayList<String> command){
         String newPath = command.get(1);
-        activeBasedir = Paths.get(newPath).toAbsolutePath();
+        Path newActivePath = activeBasedir.resolve(Paths.get(newPath)).normalize().toAbsolutePath();
+        if (Files.exists(newActivePath)){
+            activeBasedir = newActivePath;
+        } else {
+            IO.println("cd: "+newActivePath.toString()+": No such file or directory");
+        }
     }
+    
     static void runner(ArrayList<String> command){
         try {
             ProcessBuilder pb = new ProcessBuilder(command);
