@@ -64,7 +64,7 @@ public class Main {
         boolean isEscaped = false;
 
         for (char c:command.toCharArray()){
-            if (c=='\\' && !isEscaped){
+            if (c=='\\' && !isEscaped && !inSingleQuotes){
                 isEscaped = true;
                 continue;
             }
