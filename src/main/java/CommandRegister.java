@@ -45,6 +45,7 @@ public class CommandRegister{
         try {
             ProcessBuilder pb = new ProcessBuilder(command);
             Process p = pb.start();
+            pb.inheritIO(); 
 
             int exit_code = p.waitFor();
             // System.out.println();
