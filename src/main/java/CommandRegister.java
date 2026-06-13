@@ -61,6 +61,8 @@ public class CommandRegister{
         String primary = command.get(0);
         String pathEnv = System.getenv("PATH"); 
         String[] paths = pathEnv.split(":");
+        ArrayList<String> coms = (ArrayList<String>) command.clone();
+
 
         String full = null;
 
@@ -73,8 +75,8 @@ public class CommandRegister{
                 full = null;
             }
         }
-        command.set(0, full);
-        return command;
+        coms.set(0, full);
+        return coms;
     }
 
 }
