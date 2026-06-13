@@ -1,5 +1,7 @@
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Main {
     private static Map<String, Consumer<ArrayList<String>>> register = CommandRegister.FUNCTION_REGISTRY;
@@ -18,11 +20,11 @@ public class Main {
         Scanner sc = new Scanner(System.in);
         
         while (true){
-
             System.out.print("$ ");
             String command = sc.nextLine();
+
             
-            ArrayList<String> commands = new ArrayList<>(Arrays.asList(command.split(" ")));
+            ArrayList<String> commands = resolve(command);
             if (commands.get(0).equals("exit")){
                 break;
             } 
@@ -39,5 +41,57 @@ public class Main {
         sc.close();
     }
 
+    static ArrayList<String> resolve(String command){
+        ArrayList<String> resolvedCommand = new ArrayList<>(); 
+        // command = command.replaceAll("\"\"|\'\'", "");
+        // command = command.replaceAll("'\\S+'", " ");
+        // Pattern p = Pattern.compile("\"([^\"]*)\"|\'([^\']*)\'|(\\S+)");
+        // Matcher m = p.matcher(command);
+        // while (m.find()){
+        //     if (m.group(1)!=null){
+        //         resolvedCommand.add(m.group(1));
+        //     } else if (m.group(2)!=null){
+        //         resolvedCommand.add(m.group(2));
+        //     } else { 
+        //         resolvedCommand.add(m.group());
+        //     }
+        // }
+
+        StringBuilder currentToken = new StringBuilder();
+
+        boolean inDoubleQuotes = false;
+        boolean inSingleQuotes = false;
+
+        for (char c:command.toCharArray()){
+            if (c == '\'' && !inDoubleQuotes) {
+                inSingleQuotes = !inSingleQuotes;
+                continue;
+            }
+        
+            if (c == '"' && !inSingleQuotes) {
+                inDoubleQuotes = !inDoubleQuotes;
+                continue;
+            }
+
+            if (Character.isWhitespace(c) && !inDoubleQuotes && !inSingleQuotes){
+                if (currentToken.length() > 0) {
+                    resolvedCommand.add(currentToken.toString());
+                    currentToken.setLength(0);
+                }
+            }
+
+            else {
+                currentToken.append(c);
+            }
+            
+        }
+        if (currentToken.length() > 0) {
+            resolvedCommand.add(currentToken.toString());
+        }
+        return resolvedCommand;
+
+
+    
+    }
 
 }
