@@ -61,8 +61,13 @@ public class Main {
 
         boolean inDoubleQuotes = false;
         boolean inSingleQuotes = false;
+        boolean isEscaped = false;
 
         for (char c:command.toCharArray()){
+            if (c=='\\' && !inDoubleQuotes && !inSingleQuotes){
+                isEscaped = true;
+                continue;
+            }
             if (c == '\'' && !inDoubleQuotes) {
                 inSingleQuotes = !inSingleQuotes;
                 continue;
@@ -74,13 +79,17 @@ public class Main {
             }
 
             if (Character.isWhitespace(c) && !inDoubleQuotes && !inSingleQuotes){
-                if (currentToken.length() > 0) {
+                if (isEscaped){
+                    isEscaped=false;
+                    // continue;
+                }
+                else if (currentToken.length() > 0) {
                     resolvedCommand.add(currentToken.toString());
                     currentToken.setLength(0);
                 }
             }
-
             else {
+                isEscaped = false;
                 currentToken.append(c);
             }
             
