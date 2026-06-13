@@ -44,8 +44,8 @@ public class CommandRegister{
     static void runner(ArrayList<String> command){
         try {
             ProcessBuilder pb = new ProcessBuilder(command);
-            Process p = pb.start();
             pb.inheritIO(); 
+            Process p = pb.start();
 
             int exit_code = p.waitFor();
             // System.out.println();
