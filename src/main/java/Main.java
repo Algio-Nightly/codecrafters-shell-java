@@ -3,10 +3,12 @@ import java.util.function.Consumer;
 
 public class Main {
     private static Map<String, Consumer<ArrayList<String>>> register = CommandRegister.FUNCTION_REGISTRY;
+    
     static{
         register.put("exit", null);
         register.put("echo", CommandRegister::echo);
         register.put("type", CommandRegister::type);
+        register.put("pwd", CommandRegister::pwd);
     }
 
     

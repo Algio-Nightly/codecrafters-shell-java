@@ -31,7 +31,7 @@ public class CommandRegister{
             }
         }
             
-
+        
         if (FUNCTION_REGISTRY.containsKey(primary)){
             System.out.println(primary + " is a shell builtin");
         } else if (full!=null){
@@ -40,7 +40,10 @@ public class CommandRegister{
             System.out.println(primary+": not found");
         }
     }
-
+    static void pwd(ArrayList<String> command){
+        System.out.println(Paths.get("").toAbsolutePath());
+    }
+    
     static void runner(ArrayList<String> command){
         try {
             ProcessBuilder pb = new ProcessBuilder(command);
@@ -78,5 +81,6 @@ public class CommandRegister{
         coms.set(0, full);
         return coms;
     }
+
 
 }
