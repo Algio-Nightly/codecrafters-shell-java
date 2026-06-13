@@ -47,11 +47,22 @@ public class CommandRegister{
     
     static void cd(ArrayList<String> command){
         String newPath = command.get(1);
-        Path newActivePath = activeBasedir.resolve(Paths.get(newPath)).normalize().toAbsolutePath();
-        if (Files.exists(newActivePath)){
-            activeBasedir = newActivePath;
-        } else {
-            IO.println("cd: "+newActivePath.toString()+": No such file or directory");
+        if (newPath.toString().equals("~")){
+            String home = null;
+            try {
+                home = System.getenv("HOME");
+            } catch (Exception e) {
+                home = System.getProperty("user.home");
+            }
+            newPath = home;
+        }
+        if (newPath!=null){
+            Path newActivePath = activeBasedir.resolve(Paths.get(newPath)).normalize().toAbsolutePath();
+            if (Files.exists(newActivePath)){
+                activeBasedir = newActivePath;
+            } else {
+                IO.println("cd: "+newActivePath.toString()+": No such file or directory");
+            }
         }
     }
     
