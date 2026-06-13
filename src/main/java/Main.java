@@ -9,7 +9,7 @@ public class Main {
         register.put("echo", CommandRegister::echo);
         register.put("type", CommandRegister::type);
         register.put("pwd", CommandRegister::pwd);
-        register.put("pcd", CommandRegister::cd);
+        register.put("cd", CommandRegister::cd);
     }
 
     
