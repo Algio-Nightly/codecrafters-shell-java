@@ -36,7 +36,7 @@ public class CommandRegister{
         if (FUNCTION_REGISTRY.containsKey(primary)){
             System.out.println(primary + " is a shell builtin");
         } else if (full!=null){
-            System.out.println(primary + " is a "+ full);
+            System.out.println(primary + " is "+ full);
         } else {
             System.out.println(primary+": not found");
         }
