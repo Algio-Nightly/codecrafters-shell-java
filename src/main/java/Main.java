@@ -9,6 +9,7 @@ public class Main {
         register.put("echo", CommandRegister::echo);
         register.put("type", CommandRegister::type);
         register.put("pwd", CommandRegister::pwd);
+        register.put("pcd", CommandRegister::cd);
     }
 
     
@@ -20,6 +21,7 @@ public class Main {
 
             System.out.print("$ ");
             String command = sc.nextLine();
+            
             ArrayList<String> commands = new ArrayList<>(Arrays.asList(command.split(" ")));
             if (commands.get(0).equals("exit")){
                 break;

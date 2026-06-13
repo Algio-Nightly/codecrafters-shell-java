@@ -8,6 +8,7 @@ import java.util.function.Consumer;
 
 public class CommandRegister{
     protected static final Map<String, Consumer<ArrayList<String>>> FUNCTION_REGISTRY = new HashMap<>();
+    private static Path activeBasedir = Paths.get("").toAbsolutePath();
 
     static void set(){
         
@@ -41,9 +42,13 @@ public class CommandRegister{
         }
     }
     static void pwd(ArrayList<String> command){
-        System.out.println(Paths.get("").toAbsolutePath());
+        System.out.println(activeBasedir);
     }
     
+    static void cd(ArrayList<String> command){
+        String newPath = command.get(1);
+        activeBasedir = Paths.get(newPath).toAbsolutePath();
+    }
     static void runner(ArrayList<String> command){
         try {
             ProcessBuilder pb = new ProcessBuilder(command);
