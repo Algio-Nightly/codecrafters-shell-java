@@ -67,12 +67,13 @@ public class CommandRegister{
         for (String x:paths){
             Path fullPath = Paths.get(x, primary);
             if (Files.isExecutable(fullPath)) {
-                full = fullPath.toAbsolutePath().toString();
+                full = primary;
+                break;
             } else {
-                primary = null;
+                full = null;
             }
         }
-        command.set(0, primary);
+        command.set(0, full);
         return command;
     }
 
