@@ -65,6 +65,7 @@ public class Main {
 
     static String checkAndRun(ArrayList<String> commands){
         String out = null;
+        String err = null;
         try{
             int found = -1;
             for (int i = 1; i < commands.size(); i++) {
@@ -73,22 +74,35 @@ public class Main {
                     if (token.equals(">") || token.equals("1>")) {
                         found = 1;
                         try {
-
                             ArrayList<String> subcommand = new ArrayList<>(commands.subList(0, i)); 
                             out = execute(subcommand);
-                            String path = commands.get(i+1);
-                            CommandRegister.writer(new String[]{out,path});
-                            out = null;
 
                         } catch (ProcessFailedException p){
                             out = p.getStdoutData();
+                            err = p.getMessage();
+                        } finally {
                             String path = commands.get(i+1);
                             CommandRegister.writer(new String[]{out,path});
+                            out = err!=null?err:null;
+                        }
+                        break;
+                    } else if (token.equals("2>")){
+                        found = 1;
+                        try {
+                            ArrayList<String> subcommand = new ArrayList<>(commands.subList(0, i)); 
+                            out = execute(subcommand);
+
+                        } catch (ProcessFailedException p){
                             out = p.getMessage();
-                            
+                        } finally {
+                            String path = commands.get(i+1);
+                            CommandRegister.writer(new String[]{out,path});
+                            out = err!=null?err:null;
                         }
                         break;
                     }    
+
+
             }
             if (found==-1){
                     out =  execute(commands);
@@ -102,6 +116,8 @@ public class Main {
         return out;
             
     }
+
+
 
     static ArrayList<String> resolve(String command){
         ArrayList<String> resolvedCommand = new ArrayList<>(); 
