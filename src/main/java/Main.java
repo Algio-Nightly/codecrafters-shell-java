@@ -1,10 +1,10 @@
+import java.rmi.server.ExportException;
 import java.util.*;
-import java.util.function.Consumer;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.function.*;
 
 public class Main {
-    private static Map<String, Consumer<ArrayList<String>>> register = CommandRegister.FUNCTION_REGISTRY;
+    private static Map<String, Function<ArrayList<String>, String>> register = CommandRegister.FUNCTION_REGISTRY;
+    private static Map<String, Function<ArrayList<String>, String>> operatorRegister = new HashMap<>();
     
     static{
         register.put("exit", null);
@@ -13,6 +13,13 @@ public class Main {
         register.put("pwd", CommandRegister::pwd);
         register.put("cd", CommandRegister::cd);
     }
+
+    static {
+        // operatorRegister.put(">", );
+
+    }
+
+
 
     
     public static void main(String[] args) throws Exception {
@@ -25,37 +32,66 @@ public class Main {
 
             
             ArrayList<String> commands = resolve(command);
+
             if (commands.get(0).equals("exit")){
                 break;
             } 
-            if (register.containsKey(commands.get(0))){
-                register.get(commands.get(0)).accept(commands);
-            } else {
-                if (CommandRegister.checkExecutable(commands).get(0)==null){
-                    System.out.println(commands.get(0)+": command not found");
-                } else {
-                    CommandRegister.runner(commands);
-                }
-            }
+            
+            
+            String out = checkAndRun(commands); 
+            
+            if (out!=null){
+                IO.println(out);
+            } 
         }
         sc.close();
+    }
+    
+    static String execute(ArrayList<String> commands) throws Exception{
+        String out = null;
+        
+        if (register.containsKey(commands.get(0))){
+            out = register.get(commands.get(0)).apply(commands);
+        } else {
+            if (CommandRegister.checkExecutable(commands).get(0)==null){
+                out = (commands.get(0)+": command not found");
+                throw new Exception(out);
+            } else {
+                out = CommandRegister.runner(commands);
+            }
+        }
+        return out;
+    }
+
+    static String checkAndRun(ArrayList<String> commands){
+        String out = null;
+        try{
+            int found = -1;
+            for (int i = 1; i < commands.size(); i++) {
+                    String token = commands.get(i);
+                    
+                    if (token.equals(">") || token.equals("1>")) {
+                        ArrayList<String> subcommand = new ArrayList<>(commands.subList(0, i)); 
+                        out = execute(subcommand);
+                        
+                        String path = commands.get(i+1);
+                        CommandRegister.writer(new String[]{out,path});
+                        out = "";
+                        break;
+                    }    
+            }
+            if (found==-1){
+                    return execute(commands);
+                } 
+        } catch (Exception e){
+            out = e.getMessage();
+        }
+            return out;
+            
     }
 
     static ArrayList<String> resolve(String command){
         ArrayList<String> resolvedCommand = new ArrayList<>(); 
-        // command = command.replaceAll("\"\"|\'\'", "");
-        // command = command.replaceAll("'\\S+'", " ");
-        // Pattern p = Pattern.compile("\"([^\"]*)\"|\'([^\']*)\'|(\\S+)");
-        // Matcher m = p.matcher(command);
-        // while (m.find()){
-        //     if (m.group(1)!=null){
-        //         resolvedCommand.add(m.group(1));
-        //     } else if (m.group(2)!=null){
-        //         resolvedCommand.add(m.group(2));
-        //     } else { 
-        //         resolvedCommand.add(m.group());
-        //     }
-        // }
 
         StringBuilder currentToken = new StringBuilder();
 
