@@ -85,7 +85,7 @@ public class Main {
                             CommandRegister.writer(new String[]{out,path});
                             out = err!=null?err:null;
                         }
-                        break;
+                        return out.isEmpty()?null:out;
                     } else if (token.equals("2>")){
                         found = 1;
                         try {
@@ -114,7 +114,7 @@ public class Main {
             out = e.getMessage();
             // e.printStackTrace();
         }
-        return out.isEmpty()?null:out;
+        return out;
             
     }
 
