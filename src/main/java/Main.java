@@ -93,11 +93,12 @@ public class Main {
                             out = execute(subcommand);
 
                         } catch (ProcessFailedException p){
-                            out = p.getMessage();
+                            out = p.getStdoutData();
+                            err = p.getMessage();
                         } finally {
                             String path = commands.get(i+1);
-                            CommandRegister.writer(new String[]{out,path});
-                            out = err!=null?err:null;
+                            CommandRegister.writer(new String[]{err,path});
+                            // out = out!=null?err:null;
                         }
                         break;
                     }    
