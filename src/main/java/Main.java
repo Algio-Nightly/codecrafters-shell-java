@@ -65,7 +65,7 @@ public class Main {
 
     static String checkAndRun(ArrayList<String> commands){
         String out = null;
-        String err = null;
+        String err = "";
         try{
             int found = -1;
             for (int i = 1; i < commands.size(); i++) {
@@ -98,9 +98,9 @@ public class Main {
                         } finally {
                             String path = commands.get(i+1);
                             CommandRegister.writer(new String[]{err,path});
-                            // out = out!=null?err:null;
                         }
-                        break;
+                        return out.isEmpty()?"":out;
+                        // break;
                     }    
 
 
