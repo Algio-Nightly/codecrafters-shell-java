@@ -112,8 +112,9 @@ public class CommandRegister{
 
 
         try (BufferedWriter bw = Files.newBufferedWriter(filePath)) {
-            bw.write(in);
-            bw.newLine();
+            if (in != null && !in.trim().isEmpty()) {
+                bw.write(in);
+            }
         } catch (IOException e) {
             System.err.println("Write error: " + e.getMessage());
         }
