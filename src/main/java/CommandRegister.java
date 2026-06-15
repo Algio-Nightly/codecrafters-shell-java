@@ -136,7 +136,20 @@ public class CommandRegister{
 
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()))){
                 String output = reader.lines().collect(Collectors.joining("\n"));
-                p.waitFor();
+                int exitCode = p.waitFor();
+
+                if (exitCode!=0){
+                    try (BufferedReader errorReader = new BufferedReader(new InputStreamReader(p.getErrorStream()))) {
+                    String errorMsg = errorReader.lines().collect(Collectors.joining("\n"));
+                    
+                    if (errorMsg.isEmpty()) {
+                        errorMsg = "Command failed with exit code " + exitCode;
+                    }
+                    
+                    throw new Exception(errorMsg);
+                    } 
+
+                }
 
                 out = output;
 
