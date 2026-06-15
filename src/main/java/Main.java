@@ -72,23 +72,34 @@ public class Main {
                     
                     if (token.equals(">") || token.equals("1>")) {
                         found = 1;
-                        ArrayList<String> subcommand = new ArrayList<>(commands.subList(0, i)); 
-                        out = execute(subcommand);
-                        
-                        String path = commands.get(i+1);
-                        CommandRegister.writer(new String[]{out,path});
-                        out = null;
+                        try {
+
+                            ArrayList<String> subcommand = new ArrayList<>(commands.subList(0, i)); 
+                            out = execute(subcommand);
+                            String path = commands.get(i+1);
+                            CommandRegister.writer(new String[]{out,path});
+                            out = null;
+
+                        } catch (ProcessFailedException p){
+                            out = p.getStdoutData();
+                            String path = commands.get(i+1);
+                            CommandRegister.writer(new String[]{out,path});
+                            out = p.getMessage();
+                            
+                        }
                         break;
                     }    
             }
             if (found==-1){
-                    return execute(commands);
-                } 
-        } catch (Exception e){
+                    out =  execute(commands);
+            }
+
+        }
+        catch (Exception e){
             out = e.getMessage();
             // e.printStackTrace();
         }
-            return out;
+        return out;
             
     }
 

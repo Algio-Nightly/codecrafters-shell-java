@@ -128,7 +128,7 @@ public class CommandRegister{
         return resolvedPath;
     }
     
-    static String runner(ArrayList<String> command) throws Exception{
+    static String runner(ArrayList<String> command) throws ProcessFailedException,Exception{
         String out = null;
         ProcessBuilder pb = new ProcessBuilder(command);
         // pb.inheritIO(); 
@@ -146,14 +146,14 @@ public class CommandRegister{
                     errorMsg = "Command failed with exit code " + exitCode;
                 }
                 
-                throw new Exception(errorMsg);
+                throw new ProcessFailedException(errorMsg, output);
                 }   
 
             }
 
             out = output;
 
-        }
+        } 
     
 
         return out;
@@ -188,3 +188,4 @@ public class CommandRegister{
 
 
 }
+
