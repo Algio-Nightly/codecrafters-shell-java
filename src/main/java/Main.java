@@ -99,7 +99,7 @@ public class Main {
                             String path = commands.get(i+1);
                             CommandRegister.writer(new String[]{err,path});
                         }
-                        return out.isEmpty()?"":out;
+                        return out.isEmpty()?null:out;
                         // break;
                     }    
 
