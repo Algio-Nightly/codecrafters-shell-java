@@ -153,9 +153,6 @@ public class CommandRegister{
 
                 out = output;
 
-            } catch (Exception e){
-                System.err.println("Failed to capture command output: " + e.getMessage());
-                // return "";
             }
 
 
