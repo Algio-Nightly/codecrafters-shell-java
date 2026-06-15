@@ -3,6 +3,7 @@ import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -11,6 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 
 public class CommandRegister{
@@ -129,14 +131,24 @@ public class CommandRegister{
         String out = null;
         try {
             ProcessBuilder pb = new ProcessBuilder(command);
-            pb.inheritIO(); 
+            // pb.inheritIO(); 
             Process p = pb.start();
 
-            int exit_code = p.waitFor();
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()))){
+                String output = reader.lines().collect(Collectors.joining("\n"));
+                p.waitFor();
+
+                out = output;
+
+            } catch (Exception e){
+                System.err.println("Failed to capture command output: " + e.getMessage());
+                // return "";
+            }
+
 
         } catch (Exception e){
             out = ("Failed to execute Executable at"+ command.get(0));
-            e.printStackTrace();
+            // e.printStackTrace();
         }
 
         return out;

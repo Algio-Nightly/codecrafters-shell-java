@@ -71,12 +71,13 @@ public class Main {
                     String token = commands.get(i);
                     
                     if (token.equals(">") || token.equals("1>")) {
+                        found = 1;
                         ArrayList<String> subcommand = new ArrayList<>(commands.subList(0, i)); 
                         out = execute(subcommand);
                         
                         String path = commands.get(i+1);
                         CommandRegister.writer(new String[]{out,path});
-                        out = "";
+                        out = null;
                         break;
                     }    
             }
@@ -85,6 +86,7 @@ public class Main {
                 } 
         } catch (Exception e){
             out = e.getMessage();
+            // e.printStackTrace();
         }
             return out;
             
