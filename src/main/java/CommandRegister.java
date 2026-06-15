@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.rmi.server.ExportException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -127,39 +128,33 @@ public class CommandRegister{
         return resolvedPath;
     }
     
-    static String runner(ArrayList<String> command){
+    static String runner(ArrayList<String> command) throws Exception{
         String out = null;
-        try {
-            ProcessBuilder pb = new ProcessBuilder(command);
-            // pb.inheritIO(); 
-            Process p = pb.start();
+        ProcessBuilder pb = new ProcessBuilder(command);
+        // pb.inheritIO(); 
+        Process p = pb.start();
 
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()))){
-                String output = reader.lines().collect(Collectors.joining("\n"));
-                int exitCode = p.waitFor();
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()))){
+            String output = reader.lines().collect(Collectors.joining("\n"));
+            int exitCode = p.waitFor();
 
-                if (exitCode!=0){
-                    try (BufferedReader errorReader = new BufferedReader(new InputStreamReader(p.getErrorStream()))) {
-                    String errorMsg = errorReader.lines().collect(Collectors.joining("\n"));
-                    
-                    if (errorMsg.isEmpty()) {
-                        errorMsg = "Command failed with exit code " + exitCode;
-                    }
-                    
-                    throw new Exception(errorMsg);
-                    } 
-
+            if (exitCode!=0){
+                try (BufferedReader errorReader = new BufferedReader(new InputStreamReader(p.getErrorStream()))) {
+                String errorMsg = errorReader.lines().collect(Collectors.joining("\n"));
+                
+                if (errorMsg.isEmpty()) {
+                    errorMsg = "Command failed with exit code " + exitCode;
                 }
-
-                out = output;
+                
+                throw new Exception(errorMsg);
+                }   
 
             }
 
+            out = output;
 
-        } catch (Exception e){
-            out = ("Failed to execute Executable at"+ command.get(0));
-            // e.printStackTrace();
         }
+    
 
         return out;
     }
