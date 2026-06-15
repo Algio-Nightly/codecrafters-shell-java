@@ -114,7 +114,7 @@ public class Main {
             out = e.getMessage();
             // e.printStackTrace();
         }
-        return out;
+        return out.isEmpty()?null:out;
             
     }
 
