@@ -95,7 +95,7 @@ public class CommandRegister{
     }
 
     static String jobs (ArrayList<String> command){
-        return "";
+        return null;
     }
 
     static String reader(ArrayList<String> command){
