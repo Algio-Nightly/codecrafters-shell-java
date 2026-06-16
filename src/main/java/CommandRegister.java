@@ -112,9 +112,10 @@ public class CommandRegister{
         Path filePath = getResolvedPath(fPath);
 
 
-        try (BufferedWriter bw = append?Files.newBufferedWriter(filePath, StandardOpenOption.APPEND):Files.newBufferedWriter(filePath)) {
+        try (BufferedWriter bw = append?Files.newBufferedWriter(filePath, StandardOpenOption.CREATE, StandardOpenOption.APPEND):Files.newBufferedWriter(filePath)) {
             if (in != null && !in.trim().isEmpty()) {
                 bw.write(in);
+                bw.newLine();
             }
         } catch (IOException e) {
             System.err.println("Write error: " + e.getMessage());
