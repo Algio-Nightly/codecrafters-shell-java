@@ -82,7 +82,22 @@ public class Main {
                             err = p.getMessage();
                         } finally {
                             String path = commands.get(i+1);
-                            CommandRegister.writer(new String[]{out,path});
+                            CommandRegister.writer(new String[]{out,path}, false);
+                            out = err!=null?err:null;
+                        }
+                        return out.isEmpty()?null:out;
+                    } else if (token.equals(">>") || token.equals("1>>")) {
+                        found = 1;
+                        try {
+                            ArrayList<String> subcommand = new ArrayList<>(commands.subList(0, i)); 
+                            out = execute(subcommand);
+
+                        } catch (ProcessFailedException p){
+                            out = p.getStdoutData();
+                            err = p.getMessage();
+                        } finally {
+                            String path = commands.get(i+1);
+                            CommandRegister.writer(new String[]{out,path}, true);
                             out = err!=null?err:null;
                         }
                         return out.isEmpty()?null:out;
@@ -97,7 +112,22 @@ public class Main {
                             err = p.getMessage();
                         } finally {
                             String path = commands.get(i+1);
-                            CommandRegister.writer(new String[]{err,path});
+                            CommandRegister.writer(new String[]{err,path}, false);
+                        }
+                        return out.isEmpty()?null:out;
+                        // break;
+                    } else if (token.equals("2>>")){
+                        found = 1;
+                        try {
+                            ArrayList<String> subcommand = new ArrayList<>(commands.subList(0, i)); 
+                            out = execute(subcommand);
+
+                        } catch (ProcessFailedException p){
+                            out = p.getStdoutData();
+                            err = p.getMessage();
+                        } finally {
+                            String path = commands.get(i+1);
+                            CommandRegister.writer(new String[]{err,path}, true);
                         }
                         return out.isEmpty()?null:out;
                         // break;

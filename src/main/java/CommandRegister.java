@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.rmi.server.ExportException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -105,13 +106,13 @@ public class CommandRegister{
         return out;
     }
 
-    static void writer(String[] command){
+    static void writer(String[] command, boolean append){
         String in = command[0];
         String fPath = command[1];
         Path filePath = getResolvedPath(fPath);
 
 
-        try (BufferedWriter bw = Files.newBufferedWriter(filePath)) {
+        try (BufferedWriter bw = append?Files.newBufferedWriter(filePath, StandardOpenOption.APPEND):Files.newBufferedWriter(filePath)) {
             if (in != null && !in.trim().isEmpty()) {
                 bw.write(in);
             }
