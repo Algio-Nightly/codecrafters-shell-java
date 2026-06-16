@@ -12,6 +12,7 @@ public class Main {
         register.put("type", CommandRegister::type);
         register.put("pwd", CommandRegister::pwd);
         register.put("cd", CommandRegister::cd);
+        register.put("jobs", CommandRegister::jobs);
     }
 
     static {
@@ -131,8 +132,8 @@ public class Main {
                         }
                         return out.isEmpty()?null:out;
                         // break;
-                    }    
-
+                    } 
+                    
 
             }
             if (found==-1){

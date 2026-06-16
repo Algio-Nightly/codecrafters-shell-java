@@ -94,6 +94,10 @@ public class CommandRegister{
         return out;
     }
 
+    static String jobs (ArrayList<String> command){
+        return "";
+    }
+
     static String reader(ArrayList<String> command){
         Path filePath = Paths.get(command.get(1));
         
