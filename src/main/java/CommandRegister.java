@@ -24,6 +24,8 @@ public class CommandRegister{
         }
     }
     protected static final Map<String, Function<ArrayList<String>, String>> FUNCTION_REGISTRY = new HashMap<>();
+    protected static Map<String, Function<ArrayList<String>, String>> jobRegister = new HashMap<>();
+
     private static Path activeBasedir = Paths.get("").toAbsolutePath();
 
     static void set(){

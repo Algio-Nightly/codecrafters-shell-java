@@ -1,10 +1,12 @@
+
 import java.rmi.server.ExportException;
 import java.util.*;
 import java.util.function.*;
 
 public class Main {
     private static Map<String, Function<ArrayList<String>, String>> register = CommandRegister.FUNCTION_REGISTRY;
-    private static Map<String, Function<ArrayList<String>, String>> operatorRegister = new HashMap<>();
+    private static ArrayList<Job> jobRegister = new ArrayList<>();
+
     
     static{
         register.put("exit", null);
@@ -70,74 +72,38 @@ public class Main {
         try{
             int found = -1;
             for (int i = 1; i < commands.size(); i++) {
-                    String token = commands.get(i);
-                    
-                    if (token.equals(">") || token.equals("1>")) {
-                        found = 1;
-                        try {
-                            ArrayList<String> subcommand = new ArrayList<>(commands.subList(0, i)); 
-                            out = execute(subcommand);
+                String token = commands.get(i);
+                
+                if (token.equals(">") || token.equals("1>")) {
+                    found = 1;
+                    out = redirection(commands, i, false, false);
+                    return out.isEmpty()?null:out;
+                } else if (token.equals(">>") || token.equals("1>>")) {
+                    found = 1;
+                    out = redirection(commands, i, true, false);
+                    return out.isEmpty()?null:out;
+                } else if (token.equals("2>")){
 
-                        } catch (ProcessFailedException p){
-                            out = p.getStdoutData();
-                            err = p.getMessage();
-                        } finally {
-                            String path = commands.get(i+1);
-                            CommandRegister.writer(new String[]{out,path}, false);
-                            out = err!=null?err:null;
-                        }
-                        return out.isEmpty()?null:out;
-                    } else if (token.equals(">>") || token.equals("1>>")) {
-                        found = 1;
-                        try {
-                            ArrayList<String> subcommand = new ArrayList<>(commands.subList(0, i)); 
-                            out = execute(subcommand);
+                    out = redirection(commands, i, false, true);
+                    return out.isEmpty()?null:out;
 
-                        } catch (ProcessFailedException p){
-                            out = p.getStdoutData();
-                            err = p.getMessage();
-                        } finally {
-                            String path = commands.get(i+1);
-                            CommandRegister.writer(new String[]{out,path}, true);
-                            out = err!=null?err:null;
-                        }
-                        return out.isEmpty()?null:out;
-                    } else if (token.equals("2>")){
-                        found = 1;
-                        try {
-                            ArrayList<String> subcommand = new ArrayList<>(commands.subList(0, i)); 
-                            out = execute(subcommand);
-
-                        } catch (ProcessFailedException p){
-                            out = p.getStdoutData();
-                            err = p.getMessage();
-                        } finally {
-                            String path = commands.get(i+1);
-                            CommandRegister.writer(new String[]{err,path}, false);
-                        }
-                        return out.isEmpty()?null:out;
-                        // break;
-                    } else if (token.equals("2>>")){
-                        found = 1;
-                        try {
-                            ArrayList<String> subcommand = new ArrayList<>(commands.subList(0, i)); 
-                            out = execute(subcommand);
-
-                        } catch (ProcessFailedException p){
-                            out = p.getStdoutData();
-                            err = p.getMessage();
-                        } finally {
-                            String path = commands.get(i+1);
-                            CommandRegister.writer(new String[]{err,path}, true);
-                        }
-                        return out.isEmpty()?null:out;
-                        // break;
+                } else if (token.equals("2>>")){
+                    found = 1;
+                    out = redirection(commands, i, true, true);
+                    return out.isEmpty()?null:out;
+  
+                } else if (token.equals("&")){
+                    try {
+                        ArrayList<String> subcommand = new ArrayList<>(commands.subList(0, i)); 
+                        out = backgroundExecute(subcommand);
+                    } catch (Exception e) {
+                        err = e.getMessage();
                     } 
-                    
-
+                    return out.isEmpty()?null:out; 
+                }
             }
             if (found==-1){
-                    out =  execute(commands);
+                out = execute(commands);
             }
 
         }
@@ -149,6 +115,42 @@ public class Main {
             
     }
 
+    static String backgroundExecute(ArrayList<String> commands) throws Exception{
+        String out = null;
+        int newJobNo = jobRegister.size()+1;
+        Job j = new Job(newJobNo, commands);
+        jobRegister.add(j);
+        j.startJob();
+
+        out = "["+j.jobNo+"] "+j.pid;
+
+        return out;
+    }
+        
+    static String redirection(ArrayList<String> commands, int i, boolean append, boolean error) throws Exception{
+        String out = null;
+        String err = null;
+        try {
+            ArrayList<String> subcommand = new ArrayList<>(commands.subList(0, i)); 
+            out = execute(subcommand);
+
+        } catch (ProcessFailedException p){
+            out = p.getStdoutData();
+            err = p.getMessage();
+        } finally {
+            String path = commands.get(i+1);
+            if (error){
+                CommandRegister.writer(new String[]{err,path}, append);            
+            } else {
+                CommandRegister.writer(new String[]{out,path}, append);
+                out = err!=null?err:null;
+            }
+         }
+        return out;
+        
+    }
+            
+    
 
 
     static ArrayList<String> resolve(String command){
