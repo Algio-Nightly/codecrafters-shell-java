@@ -143,7 +143,7 @@ public class Main {
                 CommandRegister.writer(new String[]{err,path}, append);            
             } else {
                 CommandRegister.writer(new String[]{out,path}, append);
-                out = err!=null?err:null;
+                out = err!=null?err:"";
             }
          }
         return out;
