@@ -33,7 +33,10 @@ public class Main {
             
             
             String out = parseAndRun(commands);
-            out = out.isEmpty()?null:out;
+            if (out!=null){
+                out = out.isEmpty()?null:out;
+            }
+
             
             if (out!=null){
                 IO.println(out);
