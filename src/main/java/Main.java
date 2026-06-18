@@ -103,7 +103,7 @@ public class Main {
         }
         return background?backgroundExecute(commands):execute(commands);
     }
-    static CommandResult execute(ArrayList<String> commands) throws Exception{
+    static CommandResult execute(ArrayList<String> commands) throws Exception {
         if (register.containsKey(commands.get(0))){
             try {
                     return new CommandResult(register.get(commands.get(0)).apply(commands), true) ;
@@ -117,8 +117,9 @@ public class Main {
             } else {
                 try {
                     return new CommandResult(CommandRegister.runner(commands), true);
-                } catch (Exception e){
-                    return new CommandResult(e.getMessage(), false) ;
+                } catch (ProcessFailedException e){
+
+                    return new CommandResult(e.getMessage(), e.getStdoutData() , false);
                 }
             }
         }
@@ -162,8 +163,8 @@ public class Main {
 
         if (error) {
             CommandRegister.writer(new String[]{errData, path}, append);
-  
-            return new CommandResult(outData, result.success);
+            
+            return new CommandResult(result.anotherOut, result.success);
             
         } else {
             CommandRegister.writer(new String[]{outData, path}, append);
