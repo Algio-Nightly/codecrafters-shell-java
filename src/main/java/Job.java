@@ -40,10 +40,15 @@ public class Job {
                     if (output.isEmpty()) {
                         err = "Command failed with exit code " + exitCode;
                     } else {
-                        IO.print(output);
+                        IO.println(output);
                     }
                 } else {
-                    IO.print(output);
+                    if (output.isEmpty()) {
+                        // err = "Command failed with exit code " + exitCode;
+                    } else {
+                        IO.println(output);
+                    }
+                    
                 }
             }  catch (Exception e) {
                 err = e.getMessage();
