@@ -1,5 +1,3 @@
-
-import java.rmi.server.ExportException;
 import java.util.*;
 import java.util.function.*;
 
@@ -16,13 +14,6 @@ public class Main {
         register.put("cd", CommandRegister::cd);
         register.put("jobs", CommandRegister::jobs);
     }
-
-    static {
-        // operatorRegister.put(">", );
-
-    }
-
-
 
     
     public static void main(String[] args) throws Exception {
@@ -41,7 +32,8 @@ public class Main {
             } 
             
             
-            String out = checkAndRun(commands); 
+            String out = parseAndRun(commands);
+            out = out.isEmpty()?null:out;
             
             if (out!=null){
                 IO.println(out);
@@ -49,106 +41,167 @@ public class Main {
         }
         sc.close();
     }
-    
-    static String execute(ArrayList<String> commands) throws Exception{
-        String out = null;
+
+    static String parseAndRun(ArrayList<String> commands){
+        try{
+            String token = commands.get(commands.size()-1);
+                if (token.equals("&")) {
+                ArrayList<String> subcommand = new ArrayList<>(commands.subList(0, commands.size() - 1));
+                
+                // 1. Create a dummy Job to track this in the register
+                int newJobNo = jobRegister.size() + 1;
+                Job j = new Job(newJobNo, subcommand);
+                
+                // 2. Wrap the ENTIRE parser in a background thread
+                Thread backgroundSubshell = new Thread(() -> {
+                    try {
+                        // The parser runs normally, just invisibly in the background!
+                        CommandResult result = parseLogical(subcommand);
+                        j.out = result.output;
+                        j.success = result.success;
+                        
+                        if (result.output != null && !result.output.isEmpty()){
+                            IO.print(result.output);
+                        }
+                    
+
+                    } catch (Exception e) {
+                        j.out = e.getMessage();
+                        j.success = false;
+                    } finally {
+                        j.isJobDone = true;
+                    }
+                });
+                
+                // 3. Use the Thread ID as the PID for complex background tasks
+                j.pid = backgroundSubshell.threadId();
+                jobRegister.add(j);
+                backgroundSubshell.start();
+                
+                return "[" + j.jobNo + "] " + j.pid;
+            } else {
+                return parseLogical(commands).output;
+            }
         
+        } catch (Exception e){
+            return e.getMessage();
+        }
+    }
+
+    static CommandResult parseLogical(ArrayList<String> commands) throws Exception{
+        int index = -1;
+        CommandResult out;
+        if (commands.contains("&&")){
+            index = commands.indexOf("&&");
+            out = parseLogical(new ArrayList<>(commands.subList(0, index)));
+            if (out.success){
+                return parseLogical(new ArrayList<>(commands.subList(index+1, commands.size())));
+            } else {
+                return out;
+            }
+        } else if (commands.contains("||")){
+            index = commands.indexOf("||");
+            out = parseLogical(new ArrayList<>(commands.subList(0, index)));
+            if (!out.success){
+                return parseLogical(new ArrayList<>(commands.subList(index+1, commands.size())));
+            } else {
+                return out;
+            }
+        } else {
+            return parseRedirectionString(commands);   
+        }
+        
+    }
+
+    static CommandResult parseRedirectionString(ArrayList<String> commands) throws Exception{
+        if (commands.contains(">") || commands.contains("1>")) {
+            int idx = commands.indexOf(">") != -1 ? commands.indexOf(">") : commands.indexOf("1>");
+            return redirection(commands, idx, false, false );
+            
+        } else if (commands.contains(">>") || commands.contains("1>>")) {
+            int idx = commands.indexOf(">>") != -1 ? commands.indexOf(">>") : commands.indexOf("1>>");
+            return redirection(commands, idx, true, false );
+            
+        } else if (commands.contains("2>")) {
+            int idx = commands.indexOf("2>");
+            return redirection(commands, idx, false, true );
+            
+        } else if (commands.contains("2>>")) {
+            int idx = commands.indexOf("2>>");
+            return redirection(commands, idx, true, true);
+        }
+        return execute(commands);
+    }
+    static CommandResult execute(ArrayList<String> commands) throws Exception{
         if (register.containsKey(commands.get(0))){
-            out = register.get(commands.get(0)).apply(commands);
+            try {
+                    return new CommandResult(register.get(commands.get(0)).apply(commands), true) ;
+            } catch (Exception e){
+                    return new CommandResult(e.getMessage(), false) ;
+            }
         } else {
             if (CommandRegister.checkExecutable(commands).get(0)==null){
-                out = (commands.get(0)+": command not found");
-                throw new Exception(out);
+                return new CommandResult(commands.get(0)+": command not found", false);
+                // throw new Exception(out);
             } else {
-                out = CommandRegister.runner(commands);
-            }
-        }
-        return out;
-    }
-
-    static String checkAndRun(ArrayList<String> commands){
-        String out = null;
-        String err = "";
-        try{
-            int found = -1;
-            for (int i = 1; i < commands.size(); i++) {
-                String token = commands.get(i);
-                
-                if (token.equals(">") || token.equals("1>")) {
-                    found = 1;
-                    out = redirection(commands, i, false, false);
-                    return out.isEmpty()?null:out;
-                } else if (token.equals(">>") || token.equals("1>>")) {
-                    found = 1;
-                    out = redirection(commands, i, true, false);
-                    return out.isEmpty()?null:out;
-                } else if (token.equals("2>")){
-
-                    out = redirection(commands, i, false, true);
-                    return out.isEmpty()?null:out;
-
-                } else if (token.equals("2>>")){
-                    found = 1;
-                    out = redirection(commands, i, true, true);
-                    return out.isEmpty()?null:out;
-  
-                } else if (token.equals("&")){
-                    try {
-                        ArrayList<String> subcommand = new ArrayList<>(commands.subList(0, i)); 
-                        out = backgroundExecute(subcommand);
-                    } catch (Exception e) {
-                        err = e.getMessage();
-                    } 
-                    return out.isEmpty()?null:out; 
+                try {
+                    return new CommandResult(CommandRegister.runner(commands), true);
+                } catch (Exception e){
+                    return new CommandResult(e.getMessage(), false) ;
                 }
             }
-            if (found==-1){
-                out = execute(commands);
-            }
-
         }
-        catch (Exception e){
-            out = e.getMessage();
-            // e.printStackTrace();
-        }
-        return out;
-            
+        
     }
 
-    static String backgroundExecute(ArrayList<String> commands) throws Exception{
+
+    static CommandResult backgroundExecute(ArrayList<String> commands) throws Exception{
         String out = null;
+        boolean success = true;
+
         int newJobNo = jobRegister.size()+1;
-        Job j = new Job(newJobNo, commands);
-        jobRegister.add(j);
-        j.startJob();
-
-        out = "["+j.jobNo+"] "+j.pid;
-
-        return out;
-    }
-        
-    static String redirection(ArrayList<String> commands, int i, boolean append, boolean error) throws Exception{
-        String out = null;
-        String err = null;
         try {
-            ArrayList<String> subcommand = new ArrayList<>(commands.subList(0, i)); 
-            out = execute(subcommand);
+            Job j = new Job(newJobNo, commands);
+            jobRegister.add(j);
+            j.startJob();
+            out = "["+j.jobNo+"] "+j.pid;
+        } catch (Exception e) {
+            success = false;
+            out = e.getMessage();
+        }
 
-        } catch (ProcessFailedException p){
-            out = p.getStdoutData();
-            err = p.getMessage();
-        } finally {
-            String path = commands.get(i+1);
-            if (error){
-                CommandRegister.writer(new String[]{err,path}, append);            
-            } else {
-                CommandRegister.writer(new String[]{out,path}, append);
-                out = err!=null?err:"";
-            }
-         }
-        return out;
-        
+
+        return new CommandResult(out, success);
     }
+        
+    static CommandResult redirection(ArrayList<String> commands, int i, boolean append, boolean error) throws Exception{
+        ArrayList<String> subcommand = new ArrayList<>(commands.subList(0, i)); 
+        String path = commands.get(i + 1);
+
+        CommandResult result = execute(subcommand);
+
+        String outData = "";
+        String errData = "";
+        
+        if (result.success) {
+            outData = result.output;
+        } else {
+            errData = result.output;
+        }
+
+        if (error) {
+            CommandRegister.writer(new String[]{errData, path}, append);
+  
+            return new CommandResult(outData, result.success);
+            
+        } else {
+            CommandRegister.writer(new String[]{outData, path}, append);
+            
+            return new CommandResult(errData, result.success);
+        }
+    }
+        
+    
             
     
 

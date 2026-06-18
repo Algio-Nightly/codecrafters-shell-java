@@ -1,18 +1,14 @@
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.rmi.server.ExportException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -100,17 +96,6 @@ public class CommandRegister{
         return null;
     }
 
-    static String reader(ArrayList<String> command){
-        Path filePath = Paths.get(command.get(1));
-        
-        String out = null;
-        try (BufferedReader bf = Files.newBufferedReader(filePath)){
-
-        } catch (Exception e){
-
-        }
-        return out;
-    }
 
     static void writer(String[] command, boolean append){
         String in = command[0];

@@ -1,14 +1,18 @@
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class Job {
+    private static Map<String, Function<ArrayList<String>, String>> register = CommandRegister.FUNCTION_REGISTRY;
     int jobNo;
     long pid;
     String out;
     String err;
     ArrayList<String> command;
+    boolean success;
+    boolean isJobDone;
 
 
     Job(int jobNo, ArrayList<String> command){
@@ -17,13 +21,16 @@ public class Job {
     }
 
     public void startJob() throws Exception{
+        
         ProcessBuilder pb = new ProcessBuilder(command);
         // pb.inheritIO(); 
-        pb.redirectErrorStream(true);
         Process p = pb.start();
+        pb.redirectErrorStream(true);
         pid = p.pid();
-
+        // pb.inheritIO();
+            
         Thread backgroundProcessThread = new Thread(() ->{
+
 
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()))){
                 String output = reader.lines().collect(Collectors.joining("\n"));
@@ -33,16 +40,33 @@ public class Job {
                     if (output.isEmpty()) {
                         err = "Command failed with exit code " + exitCode;
                     } else {
-                        err = output;
+                        IO.print(output);
                     }
                 } else {
-                    out = output;
+                    IO.print(output);
                 }
             }  catch (Exception e) {
                 err = e.getMessage();
             }
       }); 
 
-      backgroundProcessThread.start();
+        backgroundProcessThread.start();
     }  
+
+
+    static String execute(ArrayList<String> commands) throws Exception{
+        String out = null;
+        
+        if (register.containsKey(commands.get(0))){
+            out = register.get(commands.get(0)).apply(commands);
+        } else {
+            if (CommandRegister.checkExecutable(commands).get(0)==null){
+                out = (commands.get(0)+": command not found");
+                throw new Exception(out);
+            } else {
+                out = CommandRegister.runner(commands);
+            }
+        }
+        return out;
+    }
 }
