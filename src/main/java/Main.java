@@ -168,7 +168,7 @@ public class Main {
         } else {
             CommandRegister.writer(new String[]{outData, path}, append);
             
-            return new CommandResult(errData, result.success);
+            return new CommandResult(outData, result.success);
         }
     }
         
