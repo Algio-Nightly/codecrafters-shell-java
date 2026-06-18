@@ -45,92 +45,60 @@ public class Main {
     static String parseAndRun(ArrayList<String> commands){
         try{
             String token = commands.get(commands.size()-1);
-                if (token.equals("&")) {
-                ArrayList<String> subcommand = new ArrayList<>(commands.subList(0, commands.size() - 1));
-                
-                // 1. Create a dummy Job to track this in the register
-                int newJobNo = jobRegister.size() + 1;
-                Job j = new Job(newJobNo, subcommand);
-                
-                // 2. Wrap the ENTIRE parser in a background thread
-                Thread backgroundSubshell = new Thread(() -> {
-                    try {
-                        // The parser runs normally, just invisibly in the background!
-                        CommandResult result = parseLogical(subcommand);
-                        j.out = result.output;
-                        j.success = result.success;
-                        
-                        if (result.output != null && !result.output.isEmpty()){
-                            IO.print(result.output);
-                        }
-                    
-
-                    } catch (Exception e) {
-                        j.out = e.getMessage();
-                        j.success = false;
-                    } finally {
-                        j.isJobDone = true;
-                    }
-                });
-                
-                // 3. Use the Thread ID as the PID for complex background tasks
-                j.pid = backgroundSubshell.threadId();
-                jobRegister.add(j);
-                backgroundSubshell.start();
-                
-                return "[" + j.jobNo + "] " + j.pid;
+            if (token.equals("&")){
+                ArrayList<String> subcommand = new ArrayList<>(commands.subList(0, commands.size()-1));
+                return parseLogical(subcommand, true).output;
             } else {
-                return parseLogical(commands).output;
+                return parseLogical(commands, false).output;
             }
-        
         } catch (Exception e){
             return e.getMessage();
         }
     }
 
-    static CommandResult parseLogical(ArrayList<String> commands) throws Exception{
+    static CommandResult parseLogical(ArrayList<String> commands, boolean background) throws Exception{
         int index = -1;
         CommandResult out;
         if (commands.contains("&&")){
             index = commands.indexOf("&&");
-            out = parseLogical(new ArrayList<>(commands.subList(0, index)));
+            out = parseLogical(new ArrayList<>(commands.subList(0, index)), background);
             if (out.success){
-                return parseLogical(new ArrayList<>(commands.subList(index+1, commands.size())));
+                return parseLogical(new ArrayList<>(commands.subList(index+1, commands.size())), background);
             } else {
                 return out;
             }
         } else if (commands.contains("||")){
             index = commands.indexOf("||");
-            out = parseLogical(new ArrayList<>(commands.subList(0, index)));
+            out = parseLogical(new ArrayList<>(commands.subList(0, index)), background);
             if (!out.success){
-                return parseLogical(new ArrayList<>(commands.subList(index+1, commands.size())));
+                return parseLogical(new ArrayList<>(commands.subList(index+1, commands.size())),background);
             } else {
                 return out;
             }
         } else {
-            return parseRedirectionString(commands);   
+            return parseRedirectionString(commands, background);   
         }
         
     }
 
-    static CommandResult parseRedirectionString(ArrayList<String> commands) throws Exception{
+    static CommandResult parseRedirectionString(ArrayList<String> commands, boolean background) throws Exception{
         if (commands.contains(">") || commands.contains("1>")) {
             int idx = commands.indexOf(">") != -1 ? commands.indexOf(">") : commands.indexOf("1>");
-            return redirection(commands, idx, false, false );
+            return redirection(commands, idx, false, false, background);
             
         } else if (commands.contains(">>") || commands.contains("1>>")) {
             int idx = commands.indexOf(">>") != -1 ? commands.indexOf(">>") : commands.indexOf("1>>");
-            return redirection(commands, idx, true, false );
+            return redirection(commands, idx, true, false, background);
             
         } else if (commands.contains("2>")) {
             int idx = commands.indexOf("2>");
-            return redirection(commands, idx, false, true );
+            return redirection(commands, idx, false, true, background);
             
         } else if (commands.contains("2>>")) {
             int idx = commands.indexOf("2>>");
-            return redirection(commands, idx, true, true);
+            return redirection(commands, idx, true, true, background);
         }
-        return execute(commands);
+        return background?backgroundExecute(commands):execute(commands);
     }
     static CommandResult execute(ArrayList<String> commands) throws Exception{
         if (register.containsKey(commands.get(0))){
@@ -174,11 +142,11 @@ public class Main {
         return new CommandResult(out, success);
     }
         
-    static CommandResult redirection(ArrayList<String> commands, int i, boolean append, boolean error) throws Exception{
+    static CommandResult redirection(ArrayList<String> commands, int i, boolean append, boolean error, boolean background) throws Exception{
         ArrayList<String> subcommand = new ArrayList<>(commands.subList(0, i)); 
         String path = commands.get(i + 1);
 
-        CommandResult result = execute(subcommand);
+        CommandResult result = background?backgroundExecute(subcommand):execute(subcommand);
 
         String outData = "";
         String errData = "";
