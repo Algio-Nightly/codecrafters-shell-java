@@ -161,14 +161,14 @@ public class Main {
         }
 
         if (error) {
-            CommandRegister.writer(new String[]{errData, path}, append);
+            CommandRegister.writer(new String[]{outData, path}, append);
   
             return new CommandResult(outData, result.success);
             
         } else {
             CommandRegister.writer(new String[]{outData, path}, append);
             
-            return new CommandResult(outData, result.success);
+            return new CommandResult(errData, result.success);
         }
     }
         
