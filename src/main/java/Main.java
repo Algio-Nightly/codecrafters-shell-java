@@ -161,7 +161,7 @@ public class Main {
         }
 
         if (error) {
-            CommandRegister.writer(new String[]{outData, path}, append);
+            CommandRegister.writer(new String[]{errData, path}, append);
   
             return new CommandResult(outData, result.success);
             
