@@ -1,15 +1,16 @@
 public class CommandResult {
     public boolean success;
-    public String output;
-    public String anotherOut;
+    public String stdout;
+    public String stderr;
 
     public CommandResult(String output, boolean success) {
         this.success = success;
-        this.output = output;
+        this.stdout = output;
+        this.stderr = "";
     }
-    public CommandResult(String error, String anotherOut2, boolean success) {
+    public CommandResult(String output, String error, boolean success) {
         this.success = success;
-        this.output = error;
-        this.anotherOut = anotherOut2;
+        this.stdout = output;
+        this.stderr = error;
     }
 }

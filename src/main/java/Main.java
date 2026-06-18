@@ -50,9 +50,9 @@ public class Main {
             String token = commands.get(commands.size()-1);
             if (token.equals("&")){
                 ArrayList<String> subcommand = new ArrayList<>(commands.subList(0, commands.size()-1));
-                return parseLogical(subcommand, true).output;
+                return parseLogical(subcommand, true).stdout;
             } else {
-                return parseLogical(commands, false).output;
+                return parseLogical(commands, false).stdout;
             }
         } catch (Exception e){
             return e.getMessage();
@@ -112,15 +112,10 @@ public class Main {
             }
         } else {
             if (CommandRegister.checkExecutable(commands).get(0)==null){
-                return new CommandResult(commands.get(0)+": command not found", false);
-                // throw new Exception(out);
+                return new CommandResult("", commands.get(0)+": command not found", false);
+                
             } else {
-                try {
-                    return new CommandResult(CommandRegister.runner(commands), true);
-                } catch (ProcessFailedException e){
-
-                    return new CommandResult(e.getMessage(), e.getStdoutData() , false);
-                }
+                return CommandRegister.runner(commands);
             }
         }
         
@@ -152,24 +147,15 @@ public class Main {
 
         CommandResult result = background?backgroundExecute(subcommand):execute(subcommand);
 
-        String outData = "";
-        String errData = "";
-        
-        if (result.success) {
-            outData = result.output;
-        } else {
-            errData = result.output;
-        }
-
         if (error) {
-            CommandRegister.writer(new String[]{errData, path}, append);
+            CommandRegister.writer(new String[]{result.stderr, path}, append);
             
-            return new CommandResult(result.anotherOut, result.success);
+            return new CommandResult(result.stdout, result.success);
             
         } else {
-            CommandRegister.writer(new String[]{outData, path}, append);
+            CommandRegister.writer(new String[]{result.stdout, path}, append);
             
-            return new CommandResult(errData, result.success);
+            return new CommandResult(result.stdout, result.success);
         }
     }
         

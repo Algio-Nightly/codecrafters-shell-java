@@ -69,7 +69,7 @@ public class Job {
                 out = (commands.get(0)+": command not found");
                 throw new Exception(out);
             } else {
-                out = CommandRegister.runner(commands);
+                out = CommandRegister.runner(commands).stdout;
             }
         }
         return out;

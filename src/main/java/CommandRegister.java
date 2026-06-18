@@ -122,35 +122,23 @@ public class CommandRegister{
         return resolvedPath;
     }
     
-    static String runner(ArrayList<String> command) throws ProcessFailedException,Exception{
-        String out = null;
+    static CommandResult runner(ArrayList<String> command) throws Exception{
         ProcessBuilder pb = new ProcessBuilder(command);
         // pb.inheritIO(); 
         Process p = pb.start();
 
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()))){
-            String output = reader.lines().collect(Collectors.joining("\n"));
-            int exitCode = p.waitFor();
+        BufferedReader bfo = new BufferedReader(new InputStreamReader(p.getInputStream()));
+        String stdout = bfo.lines().collect(Collectors.joining("\n"));
+        bfo.close();
+                            
+        BufferedReader bfe = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+        String stderr = bfe.lines().collect(Collectors.joining("\n"));
+        bfo.close();
 
-            if (exitCode!=0){
-                try (BufferedReader errorReader = new BufferedReader(new InputStreamReader(p.getErrorStream()))) {
-                String errorMsg = errorReader.lines().collect(Collectors.joining("\n"));
-                
-                if (errorMsg.isEmpty()) {
-                    errorMsg = "Command failed with exit code " + exitCode;
-                }
-                
-                throw new ProcessFailedException(errorMsg, output);
-                }   
-
-            }
-
-            out = output;
-
-        } 
+        int exitCode = p.waitFor();
     
 
-        return out;
+        return new CommandResult(stdout, stderr, exitCode==0);
     }
 
     @SuppressWarnings("unchecked")
