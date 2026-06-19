@@ -55,7 +55,19 @@ public class Main {
             } else {
                 result = parseLogical(commands, false);
             }
-            return result.success?result.stdout:result.stderr;
+            StringBuilder combinedOut = new StringBuilder();
+            
+            if (result.stdout != null && !result.stdout.isEmpty()) {
+                combinedOut.append(result.stdout);
+            }
+            
+            if (result.stderr != null && !result.stderr.isEmpty()) {
+                // Add a newline between them if BOTH streams have data
+                if (combinedOut.length() > 0) combinedOut.append("\n"); 
+                combinedOut.append(result.stderr);
+            }
+            
+            return combinedOut.toString();
 
 
         } catch (Exception e){
