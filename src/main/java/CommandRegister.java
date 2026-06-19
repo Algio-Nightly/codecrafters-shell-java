@@ -20,7 +20,7 @@ public class CommandRegister{
         }
     }
     protected static final Map<String, Function<ArrayList<String>, String>> FUNCTION_REGISTRY = new HashMap<>();
-    protected static Map<String, Function<ArrayList<String>, String>> jobRegister = new HashMap<>();
+    protected static ArrayList<Job> JOB_REGISTER = new ArrayList<>();
 
     private static Path activeBasedir = Paths.get("").toAbsolutePath();
 
@@ -93,7 +93,15 @@ public class CommandRegister{
     }
 
     static String jobs (ArrayList<String> command){
-        return null;
+        StringBuilder sb = new StringBuilder();
+        for (Job j:JOB_REGISTER){
+            if (!j.isJobDone){
+                sb.append("[%d]+  Running                 %s &".formatted(j.jobNo, j.command));
+                sb.append("\n");
+            }
+        }
+
+        return sb.toString().trim();
     }
 
 

@@ -3,7 +3,7 @@ import java.util.function.*;
 
 public class Main {
     private static Map<String, Function<ArrayList<String>, String>> register = CommandRegister.FUNCTION_REGISTRY;
-    private static ArrayList<Job> jobRegister = new ArrayList<>();
+    private static ArrayList<Job> jobRegister = CommandRegister.JOB_REGISTER;
 
     
     static{
@@ -62,7 +62,6 @@ public class Main {
             }
             
             if (result.stderr != null && !result.stderr.isEmpty()) {
-                // Add a newline between them if BOTH streams have data
                 if (combinedOut.length() > 0) combinedOut.append("\n"); 
                 combinedOut.append(result.stderr);
             }
