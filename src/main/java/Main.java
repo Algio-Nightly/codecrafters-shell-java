@@ -48,12 +48,16 @@ public class Main {
     static String parseAndRun(ArrayList<String> commands){
         try{
             String token = commands.get(commands.size()-1);
+            CommandResult result;
             if (token.equals("&")){
                 ArrayList<String> subcommand = new ArrayList<>(commands.subList(0, commands.size()-1));
-                return parseLogical(subcommand, true).stdout;
+                 result = parseLogical(subcommand, true);
             } else {
-                return parseLogical(commands, false).stdout;
+                result = parseLogical(commands, false);
             }
+            return result.success?result.stdout:result.stderr;
+
+
         } catch (Exception e){
             return e.getMessage();
         }
