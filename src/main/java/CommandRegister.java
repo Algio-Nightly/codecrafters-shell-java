@@ -134,7 +134,7 @@ public class CommandRegister{
 
         try (BufferedWriter bw = append?Files.newBufferedWriter(filePath, StandardOpenOption.CREATE, StandardOpenOption.APPEND):Files.newBufferedWriter(filePath)) {
             if (in != null && !in.trim().isEmpty()) {
-                bw.write(in);
+                bw.write(in.trim());
                 bw.newLine();
             }
         } catch (IOException e) {

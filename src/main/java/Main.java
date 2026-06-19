@@ -265,7 +265,6 @@ public class Main {
                 return CommandRegister.runner(commands, stdin);
             }
         }
-        
     }
 
 
