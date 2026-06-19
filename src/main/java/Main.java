@@ -155,6 +155,8 @@ public class Main {
                 ProcessBuilder pb = new ProcessBuilder(resolved);
                 builders.add(pb);
                 currentCmd = new ArrayList<>();
+            } else {
+                currentCmd.add(x);
             }
         }
         ArrayList<String> resolved = CommandRegister.checkExecutable(currentCmd);
