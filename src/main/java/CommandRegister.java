@@ -96,7 +96,7 @@ public class CommandRegister{
         StringBuilder sb = new StringBuilder();
         for (Job j:JOB_REGISTER){
             if (!j.isJobDone){
-                sb.append("[%d]+  Running                 %s &".formatted(j.jobNo, j.command));
+                sb.append("[%d]+  Running                 %s &".formatted(j.jobNo, String.join(" ", j.command)));
                 sb.append("\n");
             }
         }
