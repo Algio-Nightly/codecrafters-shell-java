@@ -147,11 +147,10 @@ public class Main {
             ArrayList<String> subcommand =  new ArrayList<>(commands.subList(0, index));
             String stdout = parseRedirectionString(subcommand, stdin, background).stdout;
             ArrayList<String> subcommand2 =  new ArrayList<>(commands.subList(index+1, commands.size()));
-            subcommand2.add(1, stdout);
             return parsePipeline(subcommand2, stdout, background);
             
         } else {
-            return parseRedirectionString(commands, stdin,background);
+            return parseRedirectionString(commands, stdin, background);
         }
         
     }
