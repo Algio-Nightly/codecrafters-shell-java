@@ -2,7 +2,7 @@ import java.util.*;
 import java.util.function.*;
 
 public class Main {
-    private static Map<String, Function<ArrayList<String>, String>> register = CommandRegister.FUNCTION_REGISTRY;
+    private static Map<String, Function<ArrayList<String>, CommandResult>> register = CommandRegister.FUNCTION_REGISTRY;
     private static ArrayList<Job> jobRegister = CommandRegister.JOB_REGISTER;
 
     
@@ -148,9 +148,14 @@ public class Main {
         List<ProcessBuilder> builders = new ArrayList<>();
         ArrayList<String> currentCmd = new ArrayList<>();
 
+        if (containsBuiltIn(commands)) {
+            return runRecursivePipeline(commands, stdin, background);
+        }
+
         for (String x: commands){
             if (x.equals("|")){
                 ArrayList<String> resolved = CommandRegister.checkExecutable(currentCmd);
+
                 if (resolved.get(0) == null) return new CommandResult("", currentCmd.get(0) + ": command not found", false);
                 ProcessBuilder pb = new ProcessBuilder(resolved);
                 builders.add(pb);
@@ -190,9 +195,39 @@ public class Main {
         } catch (Exception e){
             return new CommandResult("", e.getMessage() , false);
         }
+    }
 
-    
-        
+    static CommandResult runRecursivePipeline(ArrayList<String> commands, String stdin, boolean background) throws Exception {
+        if (commands.contains("|")) {
+            int index = commands.indexOf("|");
+            
+            ArrayList<String> leftCommand = new ArrayList<>(commands.subList(0, index));
+            CommandResult leftResult = parseRedirectionString(leftCommand, stdin, background);
+            
+            ArrayList<String> rightCommand = new ArrayList<>(commands.subList(index + 1, commands.size()));
+            return runRecursivePipeline(rightCommand, leftResult.stdout, background);
+        } else {
+
+            return parseRedirectionString(commands, stdin, background);
+        }
+    }
+
+    static boolean containsBuiltIn(ArrayList<String> commands) {
+        ArrayList<String> currentCmd = new ArrayList<>();
+        for (String x : commands) {
+            if (x.equals("|")) {
+                if (!currentCmd.isEmpty() && register.containsKey(currentCmd.get(0))) {
+                    return true;
+                }
+                currentCmd.clear();
+            } else {
+                currentCmd.add(x);
+            }
+        }
+        if (!currentCmd.isEmpty() && register.containsKey(currentCmd.get(0))) {
+            return true;
+        }
+        return false;
     }
 
     static CommandResult parseRedirectionString(ArrayList<String> commands, String stdin, boolean background) throws Exception{
@@ -218,7 +253,7 @@ public class Main {
     static CommandResult execute(ArrayList<String> commands, String stdin) throws Exception {
         if (register.containsKey(commands.get(0))){
             try {
-                    return new CommandResult(register.get(commands.get(0)).apply(commands), true) ;
+                    return register.get(commands.get(0)).apply(commands) ;
             } catch (Exception e){
                     return new CommandResult(e.getMessage(), false) ;
             }

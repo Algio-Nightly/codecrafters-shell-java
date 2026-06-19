@@ -20,7 +20,7 @@ public class CommandRegister{
             super(message);
         }
     }
-    protected static final Map<String, Function<ArrayList<String>, String>> FUNCTION_REGISTRY = new HashMap<>();
+    protected static final Map<String, Function<ArrayList<String>, CommandResult>> FUNCTION_REGISTRY = new HashMap<>();
     protected static ArrayList<Job> JOB_REGISTER = new ArrayList<>();
 
     private static Path activeBasedir = Paths.get("").toAbsolutePath();
@@ -28,14 +28,14 @@ public class CommandRegister{
     static void set(){
         
     }
-    static String echo(ArrayList<String> command){
+    static CommandResult echo(ArrayList<String> command){
         command.remove(0);
         String out = (String.join(" ", command));
 
-        return out;
+        return new CommandResult(out, true);
     }
 
-    static String type(ArrayList<String> command){
+    static CommandResult type(ArrayList<String> command){
         String primary = command.get(1);
         String pathEnv = System.getenv("PATH"); 
         String[] paths = pathEnv.split(":");
@@ -60,16 +60,16 @@ public class CommandRegister{
             out = (primary+": not found");
         }
 
-        return out;
+        return new CommandResult(out, true);
     }
-    static String pwd(ArrayList<String> command){
+    static CommandResult pwd(ArrayList<String> command){
         String out = (activeBasedir.toString());
-        return out;
+        return new CommandResult(out, true);
     }
     
-    static String cd(ArrayList<String> command){
+    static CommandResult cd(ArrayList<String> command){
         if (command.size()<2){
-            return "cd missing path argument";
+            return new CommandResult("cd missing path argument", true);
         }
         String newPath = command.get(1);
         if (newPath.toString().equals("~")){
@@ -90,14 +90,15 @@ public class CommandRegister{
                 out = "cd: "+newActivePath.toString()+": No such file or directory";
             }
         }
-        return out;
+        return new CommandResult(out, true);
+        
     }
-
-    static String jobs (ArrayList<String> command){
+    
+    static CommandResult jobs (ArrayList<String> command){
         StringBuilder sb = new StringBuilder();
         List<Job> runningJobs = new ArrayList<>();
         for (Job j:JOB_REGISTER){
-                runningJobs.add(j);
+            runningJobs.add(j);
         }
         int numJobs = runningJobs.size();
         for (int i=0; i<numJobs; i++){
@@ -121,7 +122,7 @@ public class CommandRegister{
             }
         }
 
-        return sb.toString().trim();
+        return new CommandResult(sb.toString().trim(), true);
     }
 
 
