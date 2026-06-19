@@ -38,11 +38,8 @@ public class Main {
             }
 
             
-            if (out != null) {
-                if (out.endsWith("\n")) {
-                    out = out.substring(0, out.length() - 1);
-                }
-                IO.println(out);
+            if (out!=null){
+                IO.println(out.stripTrailing());
             }
             String d = displayDoneJobs();
             if (!d.isEmpty()){
@@ -170,7 +167,7 @@ public class Main {
             ProcessBuilder lastBuilder = builders.get(builders.size() - 1);
             lastBuilder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
             lastBuilder.redirectError(ProcessBuilder.Redirect.INHERIT);
-
+            
             List<Process> processes = ProcessBuilder.startPipeline(builders);
             
             Process first = processes.get(0);
