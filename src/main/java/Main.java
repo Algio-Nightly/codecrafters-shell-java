@@ -41,13 +41,17 @@ public class Main {
             if (out!=null){
                 IO.println(out);
             }
-            displayDoneJobs();
+            String d = displayDoneJobs();
+            if (!d.isEmpty()){
+                IO.println(d);
+            }
+
             
         }
         sc.close();
     }
 
-    static void displayDoneJobs(){
+    static String displayDoneJobs(){
 
         StringBuilder sb = new StringBuilder();
         List<Job> runningJobs = new ArrayList<>();
@@ -71,14 +75,14 @@ public class Main {
                 sb.append("[%d]%s  Done                    %s".formatted(j.jobNo, prefix, String.join(" ", j.command)));
                 // sb.append("[1 ] +  Done                    sleep 1".formatted(j.jobNo, prefix, String.join(" ", j.command)));
                 sb.append("\n");
-                jobRegister.remove(i);
+                jobRegister.remove(j);
             } else {
                 sb.append("[%d]%s  Running                 %s &".formatted(j.jobNo, prefix, String.join(" ", j.command)));
                 sb.append("\n");
             }
         }
 
-        IO.print(sb.toString().trim());
+        return (sb.toString().trim());
     }
 
 
