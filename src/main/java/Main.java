@@ -186,7 +186,7 @@ public class Main {
 
             return new CommandResult(stdout, stderr, exitCode == 0);
         } catch (Exception e){
-            return new CommandResult("", e.getMessage() , background);
+            return new CommandResult("", e.getMessage() , false);
         }
 
     
