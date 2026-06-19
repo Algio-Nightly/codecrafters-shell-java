@@ -111,7 +111,7 @@ public class CommandRegister{
                 prefix = " ";
             }
             if (j.isJobDone){
-                sb.append("[%d]%s  Done                    %s &".formatted(j.jobNo, prefix, String.join(" ", j.command)));
+                sb.append("[%d]%s  Done                    %s".formatted(j.jobNo, prefix, String.join(" ", j.command)));
                 // sb.append("[1 ] +  Done                    sleep 1".formatted(j.jobNo, prefix, String.join(" ", j.command)));
                 sb.append("\n");
                 JOB_REGISTER.remove(i);
