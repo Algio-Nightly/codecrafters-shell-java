@@ -142,16 +142,52 @@ public class Main {
     }
     
     static CommandResult parsePipeline(ArrayList<String> commands, String stdin, boolean background) throws Exception{
-        if (commands.contains("|")){
-            int index = commands.indexOf("|");
-            ArrayList<String> subcommand =  new ArrayList<>(commands.subList(0, index));
-            String stdout = parseRedirectionString(subcommand, stdin, background).stdout;
-            ArrayList<String> subcommand2 =  new ArrayList<>(commands.subList(index+1, commands.size()));
-            return parsePipeline(subcommand2, stdout, background);
-            
-        } else {
+        if (!commands.contains("|")){
             return parseRedirectionString(commands, stdin, background);
+        } 
+        List<ProcessBuilder> builders = new ArrayList<>();
+        ArrayList<String> currentCmd = new ArrayList<>();
+
+        for (String x: commands){
+            if (x.equals("|")){
+                ArrayList<String> resolved = CommandRegister.checkExecutable(currentCmd);
+                if (resolved.get(0) == null) return new CommandResult("", currentCmd.get(0) + ": command not found", false);
+                ProcessBuilder pb = new ProcessBuilder(resolved);
+                builders.add(pb);
+                currentCmd = new ArrayList<>();
+            }
         }
+        ArrayList<String> resolved = CommandRegister.checkExecutable(currentCmd);
+        if (resolved.get(0) == null) return new CommandResult("", currentCmd.get(0) + ": command not found", false);
+        builders.add(new ProcessBuilder(resolved));
+
+        try {
+            List<Process> processes = ProcessBuilder.startPipeline(builders);
+
+            Process first = processes.get(0);
+            if (stdin != null && !stdin.isEmpty()) {
+                java.io.OutputStream os = first.getOutputStream();
+                os.write(stdin.getBytes());
+                os.flush();
+                os.close();
+            }
+
+            Process last = processes.get(processes.size() - 1);
+            String stdout = new String(last.getInputStream().readAllBytes());
+            String stderr = new String(last.getErrorStream().readAllBytes());
+            
+            int exitCode = last.waitFor();
+
+            for (Process p : processes) {
+                if (p.isAlive()) p.destroy();
+            }
+
+            return new CommandResult(stdout, stderr, exitCode == 0);
+        } catch (Exception e){
+            return new CommandResult("", e.getMessage() , background);
+        }
+
+    
         
     }
 
