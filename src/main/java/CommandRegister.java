@@ -163,13 +163,16 @@ public class CommandRegister{
         }
 
 
-        BufferedReader bfo = new BufferedReader(new InputStreamReader(p.getInputStream()));
-        String stdout = bfo.lines().collect(Collectors.joining("\n"));
-        bfo.close();
+        // BufferedReader bfo = new BufferedReader(new InputStreamReader(p.getInputStream()));
+        // String stdout = bfo.lines().collect(Collectors.joining("\n"));
+        // bfo.close();
                             
-        BufferedReader bfe = new BufferedReader(new InputStreamReader(p.getErrorStream()));
-        String stderr = bfe.lines().collect(Collectors.joining("\n"));
-        bfo.close();
+        // BufferedReader bfe = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+        // String stderr = bfe.lines().collect(Collectors.joining("\n"));
+        // bfo.close();
+
+        String stdout = new String(p.getInputStream().readAllBytes());
+        String stderr = new String(p.getErrorStream().readAllBytes());
 
         int exitCode = p.waitFor();
     

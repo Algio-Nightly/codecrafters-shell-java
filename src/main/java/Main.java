@@ -39,7 +39,7 @@ public class Main {
 
             
             if (out!=null){
-                IO.println(out);
+                IO.println(out.trim());
             }
             String d = displayDoneJobs();
             if (!d.isEmpty()){
