@@ -99,9 +99,9 @@ public class CommandRegister{
         for (Job j:JOB_REGISTER){
                 runningJobs.add(j);
         }
-        int numJobs = JOB_REGISTER.size();
+        int numJobs = runningJobs.size();
         for (int i=0; i<numJobs; i++){
-            Job j = JOB_REGISTER.get(i);
+            Job j = runningJobs.get(i);
             String prefix;
             if (i==numJobs-1){
                 prefix = "+";
