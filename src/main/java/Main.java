@@ -161,9 +161,6 @@ public class Main {
         
     
             
-    
-
-
     static ArrayList<String> resolve(String command){
         ArrayList<String> resolvedCommand = new ArrayList<>(); 
 
