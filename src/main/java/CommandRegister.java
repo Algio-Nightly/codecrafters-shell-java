@@ -150,10 +150,18 @@ public class CommandRegister{
         return resolvedPath;
     }
     
-    static CommandResult runner(ArrayList<String> command) throws Exception{
+    static CommandResult runner(ArrayList<String> command, String stdin) throws Exception{
         ProcessBuilder pb = new ProcessBuilder(command);
         // pb.inheritIO(); 
         Process p = pb.start();
+
+        if (stdin != null && !stdin.isEmpty()) {
+            java.io.OutputStream os = p.getOutputStream();
+            os.write(stdin.getBytes());
+            os.flush();
+            os.close();
+        }
+
 
         BufferedReader bfo = new BufferedReader(new InputStreamReader(p.getInputStream()));
         String stdout = bfo.lines().collect(Collectors.joining("\n"));

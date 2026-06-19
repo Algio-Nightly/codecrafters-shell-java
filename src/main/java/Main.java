@@ -115,6 +115,7 @@ public class Main {
         }
     }
 
+    
     static CommandResult parseLogical(ArrayList<String> commands, boolean background) throws Exception{
         int index = -1;
         CommandResult out;
@@ -135,31 +136,47 @@ public class Main {
                 return out;
             }
         } else {
-            return parseRedirectionString(commands, background);   
+            return parsePipeline(commands,"", background);   
+        }
+        
+    }
+    
+    static CommandResult parsePipeline(ArrayList<String> commands, String stdin, boolean background) throws Exception{
+        if (commands.contains("|")){
+            int index = commands.indexOf("|");
+            ArrayList<String> subcommand =  new ArrayList<>(commands.subList(0, index));
+            String stdout = parseRedirectionString(subcommand, stdin, background).stdout;
+            ArrayList<String> subcommand2 =  new ArrayList<>(commands.subList(index+1, commands.size()));
+            subcommand2.add(1, stdout);
+            return parsePipeline(subcommand2, stdout, background);
+            
+        } else {
+            return parseRedirectionString(commands, stdin,background);
         }
         
     }
 
-    static CommandResult parseRedirectionString(ArrayList<String> commands, boolean background) throws Exception{
+    static CommandResult parseRedirectionString(ArrayList<String> commands, String stdin, boolean background) throws Exception{
         if (commands.contains(">") || commands.contains("1>")) {
             int idx = commands.indexOf(">") != -1 ? commands.indexOf(">") : commands.indexOf("1>");
-            return redirection(commands, idx, false, false, background);
+            return redirection(commands, idx, false, false, background, stdin);
             
         } else if (commands.contains(">>") || commands.contains("1>>")) {
             int idx = commands.indexOf(">>") != -1 ? commands.indexOf(">>") : commands.indexOf("1>>");
-            return redirection(commands, idx, true, false, background);
+            return redirection(commands, idx, true, false, background, stdin);
             
         } else if (commands.contains("2>")) {
             int idx = commands.indexOf("2>");
-            return redirection(commands, idx, false, true, background);
+            return redirection(commands, idx, false, true, background, stdin);
             
         } else if (commands.contains("2>>")) {
             int idx = commands.indexOf("2>>");
-            return redirection(commands, idx, true, true, background);
+            return redirection(commands, idx, true, true, background, stdin);
         }
-        return background?backgroundExecute(commands):execute(commands);
+        return background?backgroundExecute(commands, stdin):execute(commands, stdin);
     }
-    static CommandResult execute(ArrayList<String> commands) throws Exception {
+
+    static CommandResult execute(ArrayList<String> commands, String stdin) throws Exception {
         if (register.containsKey(commands.get(0))){
             try {
                     return new CommandResult(register.get(commands.get(0)).apply(commands), true) ;
@@ -171,14 +188,14 @@ public class Main {
                 return new CommandResult("", commands.get(0)+": command not found", false);
                 
             } else {
-                return CommandRegister.runner(commands);
+                return CommandRegister.runner(commands, stdin);
             }
         }
         
     }
 
 
-    static CommandResult backgroundExecute(ArrayList<String> commands) throws Exception{
+    static CommandResult backgroundExecute(ArrayList<String> commands, String stdin) throws Exception{
         String out = null;
         boolean success = true;
 
@@ -197,11 +214,11 @@ public class Main {
         return new CommandResult(out, success);
     }
         
-    static CommandResult redirection(ArrayList<String> commands, int i, boolean append, boolean error, boolean background) throws Exception{
+    static CommandResult redirection(ArrayList<String> commands, int i, boolean append, boolean error, boolean background, String stdin) throws Exception{
         ArrayList<String> subcommand = new ArrayList<>(commands.subList(0, i)); 
         String path = commands.get(i + 1);
 
-        CommandResult result = background?backgroundExecute(subcommand):execute(subcommand);
+        CommandResult result = background?backgroundExecute(subcommand, stdin):execute(subcommand, stdin);
 
         if (error) {
             CommandRegister.writer(new String[]{result.stderr, path}, append);

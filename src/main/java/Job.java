@@ -1,11 +1,11 @@
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.*;
-import java.util.function.Function;
+// import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class Job {
-    private static Map<String, Function<ArrayList<String>, String>> register = CommandRegister.FUNCTION_REGISTRY;
+    // private static Map<String, Function<ArrayList<String>, String>> register = CommandRegister.FUNCTION_REGISTRY;
     int jobNo;
     long pid;
     String out;
@@ -59,19 +59,19 @@ public class Job {
     }  
 
 
-    static String execute(ArrayList<String> commands) throws Exception{
-        String out = null;
+    // static String execute(ArrayList<String> commands) throws Exception{
+    //     String out = null;
         
-        if (register.containsKey(commands.get(0))){
-            out = register.get(commands.get(0)).apply(commands);
-        } else {
-            if (CommandRegister.checkExecutable(commands).get(0)==null){
-                out = (commands.get(0)+": command not found");
-                throw new Exception(out);
-            } else {
-                out = CommandRegister.runner(commands).stdout;
-            }
-        }
-        return out;
-    }
+    //     if (register.containsKey(commands.get(0))){
+    //         out = register.get(commands.get(0)).apply(commands);
+    //     } else {
+    //         if (CommandRegister.checkExecutable(commands).get(0)==null){
+    //             out = (commands.get(0)+": command not found");
+    //             throw new Exception(out);
+    //         } else {
+    //             out = CommandRegister.runner(commands, std).stdout;
+    //         }
+    //     }
+    //     return out;
+    // }
 }
