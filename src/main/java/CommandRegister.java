@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.List;
 
 
 public class CommandRegister{
@@ -94,9 +95,25 @@ public class CommandRegister{
 
     static String jobs (ArrayList<String> command){
         StringBuilder sb = new StringBuilder();
+        List<Job> runningJobs = new ArrayList<>();
         for (Job j:JOB_REGISTER){
             if (!j.isJobDone){
-                sb.append("[%d]+  Running                 %s &".formatted(j.jobNo, String.join(" ", j.command)));
+                runningJobs.add(j);
+            }
+        }
+        int numJobs = runningJobs.size();
+        for (int i=0; i<numJobs; i++){
+            Job j = runningJobs.get(i);
+            if (!j.isJobDone){
+                String prefix;
+                if (i==numJobs-1){
+                    prefix = "+";
+                } else if (i==numJobs-2){
+                    prefix = "-";
+                } else {
+                    prefix = " ";
+                }
+                sb.append("[%d]%s  Running                 %s &".formatted(j.jobNo, prefix, String.join(" ", j.command)));
                 sb.append("\n");
             }
         }
