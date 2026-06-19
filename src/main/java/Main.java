@@ -164,8 +164,12 @@ public class Main {
         builders.add(new ProcessBuilder(resolved));
 
         try {
+            ProcessBuilder lastBuilder = builders.get(builders.size() - 1);
+            lastBuilder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
+            lastBuilder.redirectError(ProcessBuilder.Redirect.INHERIT);
+            
             List<Process> processes = ProcessBuilder.startPipeline(builders);
-
+            
             Process first = processes.get(0);
             if (stdin != null && !stdin.isEmpty()) {
                 java.io.OutputStream os = first.getOutputStream();
@@ -173,10 +177,8 @@ public class Main {
                 os.flush();
                 os.close();
             }
-
+            
             Process last = processes.get(processes.size() - 1);
-            String stdout = new String(last.getInputStream().readAllBytes());
-            String stderr = new String(last.getErrorStream().readAllBytes());
             
             int exitCode = last.waitFor();
 
@@ -184,7 +186,7 @@ public class Main {
                 if (p.isAlive()) p.destroy();
             }
 
-            return new CommandResult(stdout, stderr, exitCode == 0);
+            return new CommandResult("", "", exitCode == 0);
         } catch (Exception e){
             return new CommandResult("", e.getMessage() , false);
         }
