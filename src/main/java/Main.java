@@ -159,7 +159,7 @@ public class Main {
         } else {
             CommandRegister.writer(new String[]{result.stdout, path}, append);
             
-            return new CommandResult(result.stdout, result.success);
+            return new CommandResult("", result.stderr, result.success);
         }
     }
         
