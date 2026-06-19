@@ -97,22 +97,25 @@ public class CommandRegister{
         StringBuilder sb = new StringBuilder();
         List<Job> runningJobs = new ArrayList<>();
         for (Job j:JOB_REGISTER){
-            if (!j.isJobDone){
                 runningJobs.add(j);
-            }
         }
-        int numJobs = runningJobs.size();
+        int numJobs = JOB_REGISTER.size();
         for (int i=0; i<numJobs; i++){
-            Job j = runningJobs.get(i);
-            if (!j.isJobDone){
-                String prefix;
-                if (i==numJobs-1){
-                    prefix = "+";
-                } else if (i==numJobs-2){
-                    prefix = "-";
-                } else {
-                    prefix = " ";
-                }
+            Job j = JOB_REGISTER.get(i);
+            String prefix;
+            if (i==numJobs-1){
+                prefix = "+";
+            } else if (i==numJobs-2){
+                prefix = "-";
+            } else {
+                prefix = " ";
+            }
+            if (j.isJobDone){
+                sb.append("[%d]%s  Done                    %s &".formatted(j.jobNo, prefix, String.join(" ", j.command)));
+                // sb.append("[1 ] +  Done                    sleep 1".formatted(j.jobNo, prefix, String.join(" ", j.command)));
+                sb.append("\n");
+                JOB_REGISTER.remove(i);
+            } else {
                 sb.append("[%d]%s  Running                 %s &".formatted(j.jobNo, prefix, String.join(" ", j.command)));
                 sb.append("\n");
             }

@@ -27,7 +27,6 @@ public class Job {
         Process p = pb.start();
         pb.redirectErrorStream(true);
         pid = p.pid();
-        // pb.inheritIO();
             
         Thread backgroundProcessThread = new Thread(() ->{
 
@@ -35,6 +34,7 @@ public class Job {
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()))){
                 String output = reader.lines().collect(Collectors.joining("\n"));
                 int exitCode = p.waitFor();
+                isJobDone = true;
 
                 if (exitCode!=0){
                     if (output.isEmpty()) {
